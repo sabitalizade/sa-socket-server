@@ -8,7 +8,7 @@ import {Server} from "socket.io"
 //app config
 const app=express();
 const dbConnection="mongodb+srv://admin:admin@chat.jhrtz.mongodb.net/chat?retryWrites=true&w=majority"
-const PORT =process.env.PORT || 3030
+const PORT =process.env.PORT || 5050
 
 const server = http.createServer(app);
 
@@ -16,6 +16,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "https://sasocket.vercel.app/",
+        // origin: "http://localhost:3000",
         methods: ["GET", "POST"]
       }
   });
@@ -40,17 +41,9 @@ const msgstrem= dbCollection.watch()
 msgstrem.on("change",change=>{
     if(change.operationType=="insert"){
         const data=change.fullDocument
-        console.log(data)
+        // console.log(data)
         io.emit("msg", data)
-    //    io.on("connect", (socket) => {
-    //         console.log("connected")
-          
-    //         socket.emit("msg", data)
-
-    //         socket.on("disconnect", () => {
-    //           console.log("Client disconnected");             
-    //         });
-    //       })
+ 
 
     }else{
         console.log("error")
