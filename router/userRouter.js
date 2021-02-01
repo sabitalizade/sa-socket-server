@@ -8,16 +8,14 @@ const router =express.Router();
 
 
 router.post("/register" , async (req,res)=>{
-console.log(req.body)
 const {error}=registerValidation(req.body);
 // Validation
  if (error) {
      res.status(400).send(error.details[0].message)
  }else{
      const existEmail = await Users.findOne({email:req.body.email});
-     if(existEmail){
-         res.status(400).send("Email artiq mövcuddur!")
-     }else{
+     if(existEmail) return res.status(400).send("Email artiq mövcuddur!")
+     
         const salt=await bcrypt.genSalt(10);
         const bcryptedPassword=await bcrypt.hash(req.body.password,salt)
          const user  = new Users({
@@ -32,14 +30,14 @@ const {error}=registerValidation(req.body);
          } catch (error) {
              res.status(400).send(error)
          }
-     }
+     
  }
 })
 
 router.post("/login", async(req,res)=>{
     const {error}=loginValidation(req.body);
 // Validation
- if (error) return res.status(400).send("E-mail standartlara uygun deyil")
+ if (error) return res.status(400).send(error.details[0].message)
  
     const user = await Users.findOne({email:req.body.email});
 

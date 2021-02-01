@@ -1,7 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import Pusher from "pusher"
+import http from "http"
+import {Server} from "socket.io"
 
 
 //app config
@@ -9,19 +10,15 @@ const app=express();
 const dbConnection="mongodb+srv://admin:admin@chat.jhrtz.mongodb.net/chat?retryWrites=true&w=majority"
 const PORT =process.env.PORT || 3030
 
+const server = http.createServer(app);
 
 
-//pusher cinfig
-
-const pusher = new Pusher({
-  appId: "1143480",
-  key: "5e158d5fe3e9f7113dc8",
-  secret: "52750c15fa700072004f",
-  cluster: "eu",
-  useTLS: true
-});
-
-
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"]
+      }
+  });
 
 
 
@@ -43,13 +40,17 @@ const msgstrem= dbCollection.watch()
 msgstrem.on("change",change=>{
     if(change.operationType=="insert"){
         const data=change.fullDocument
-        // console.log(data)
-        pusher.trigger("asyachannel", "asyaevent", {
-            name:data.name,
-            message: data.message,
-            timestamp:data.timestamp,
-            recived:data.recived
-          });
+        console.log(data)
+        io.emit("msg", data)
+    //    io.on("connect", (socket) => {
+    //         console.log("connected")
+          
+    //         socket.emit("msg", data)
+
+    //         socket.on("disconnect", () => {
+    //           console.log("Client disconnected");             
+    //         });
+    //       })
 
     }else{
         console.log("error")
@@ -77,6 +78,6 @@ app.use("/",messageRouter)
 //listen 
 
 
-app.listen(PORT,()=>{
+server.listen(PORT,()=>{
     console.log(`App start http://localhost:${PORT}`)
 })
