@@ -15,8 +15,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "https://sasocket.vercel.app/",
-        // origin: "http://localhost:3000",
+        // origin: "https://sasocket.vercel.app/",
+        origin: "http://localhost:3000",
         methods: ["GET", "POST"]
       }
   });
@@ -41,7 +41,7 @@ const msgstrem= dbCollection.watch()
 msgstrem.on("change",change=>{
     if(change.operationType=="insert"){
         const data=change.fullDocument
-        // console.log(data)
+        console.log(data)
         io.emit("msg", data)
  
 
